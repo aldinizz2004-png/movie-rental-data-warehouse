@@ -1,0 +1,186 @@
+Table Dim_Date {
+  date_key int [pk]
+  full_date date
+  day int
+  month int
+  month_name varchar
+  quarter int
+  year int
+  day_of_week varchar
+  is_weekend boolean
+}
+
+Table Dim_Location {
+  location_key int [pk]
+  address_id int
+  address varchar
+  district varchar
+  city varchar
+  country varchar
+  postal_code varchar
+  phone varchar
+}
+
+Table Dim_Customer {
+  customer_key int [pk]
+  customer_id int
+  customer_full_name varchar
+  email varchar
+  active_status varchar
+  create_date date
+  location_key int
+}
+
+Table Dim_Store {
+  store_key int [pk]
+  store_id int
+  manager_staff_id int
+  location_key int
+}
+
+Table Dim_Staff {
+  staff_key int [pk]
+  staff_id int
+  staff_full_name varchar
+  email varchar
+  active_status varchar
+  username varchar
+  store_key int
+  location_key int
+}
+
+Table Dim_Language {
+  language_key int [pk]
+  language_id int
+  language_name varchar
+}
+
+Table Dim_Film {
+  film_key int [pk]
+  film_id int
+  title varchar
+  description text
+  release_year int
+  rental_duration int
+  rental_rate decimal
+  length int
+  replacement_cost decimal
+  rating varchar
+  special_features varchar
+  language_key int
+}
+
+Table Dim_Category {
+  category_key int [pk]
+  category_id int
+  category_name varchar
+}
+
+Table Dim_Actor {
+  actor_key int [pk]
+  actor_id int
+  actor_full_name varchar
+}
+
+Table Bridge_Film_Category {
+  film_key int
+  category_key int
+  allocation_weight decimal
+}
+
+Table Bridge_Film_Actor {
+  film_key int
+  actor_key int
+  allocation_weight decimal
+}
+
+Table Fact_Rental {
+  rental_fact_key int [pk]
+  rental_id int
+  rental_date_key int
+  return_date_key int
+  customer_key int
+  film_key int
+  store_key int
+  staff_key int
+  rental_count int
+  rental_duration_days int
+  late_return_flag boolean
+  late_days int
+}
+
+Table Fact_Payment {
+  payment_fact_key int [pk]
+  payment_id int
+  payment_date_key int
+  customer_key int
+  staff_key int
+  store_key int
+  film_key int
+  rental_id int
+  payment_amount decimal
+  payment_count int
+}
+
+Table Fact_Inventory_Snapshot {
+  snapshot_fact_key int [pk]
+  snapshot_date_key int
+  film_key int
+  store_key int
+  inventory_count int
+  available_count int
+  rented_count int
+}
+
+/* Fact_Rental relationships */
+Ref: Fact_Rental.rental_date_key > Dim_Date.date_key
+Ref: Fact_Rental.return_date_key > Dim_Date.date_key
+Ref: Fact_Rental.customer_key > Dim_Customer.customer_key
+Ref: Fact_Rental.film_key > Dim_Film.film_key
+Ref: Fact_Rental.store_key > Dim_Store.store_key
+Ref: Fact_Rental.staff_key > Dim_Staff.staff_key
+
+/* Fact_Payment relationships */
+Ref: Fact_Payment.payment_date_key > Dim_Date.date_key
+Ref: Fact_Payment.customer_key > Dim_Customer.customer_key
+Ref: Fact_Payment.staff_key > Dim_Staff.staff_key
+Ref: Fact_Payment.store_key > Dim_Store.store_key
+Ref: Fact_Payment.film_key > Dim_Film.film_key
+
+/* Fact_Inventory_Snapshot relationships */
+Ref: Fact_Inventory_Snapshot.snapshot_date_key > Dim_Date.date_key
+Ref: Fact_Inventory_Snapshot.film_key > Dim_Film.film_key
+Ref: Fact_Inventory_Snapshot.store_key > Dim_Store.store_key
+
+/* Dimension relationships */
+Ref: Dim_Film.language_key > Dim_Language.language_key
+Ref: Dim_Customer.location_key > Dim_Location.location_key
+Ref: Dim_Store.location_key > Dim_Location.location_key
+Ref: Dim_Staff.location_key > Dim_Location.location_key
+Ref: Dim_Staff.store_key > Dim_Store.store_key
+
+/* Bridge tables for many-to-many relationships */
+Ref: Bridge_Film_Category.film_key > Dim_Film.film_key
+Ref: Bridge_Film_Category.category_key > Dim_Category.category_key
+
+Ref: Bridge_Film_Actor.film_key > Dim_Film.film_key
+Ref: Bridge_Film_Actor.actor_key > Dim_Actor.actor_key
+
+DiagramView Default {
+  Tables {
+    Dim_Date
+    Dim_Staff
+    Bridge_Film_Category
+    Bridge_Film_Actor
+    Fact_Rental
+    Fact_Payment
+    Fact_Inventory_Snapshot
+    Dim_Actor
+    Dim_Category
+    Dim_Film
+    Dim_Language
+    Dim_Location
+    Dim_Customer
+    Dim_Store
+  }
+}
